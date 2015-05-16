@@ -68,7 +68,7 @@ double PID_yaw_input, PID_yaw_output, PID_yaw_setpoint=0;
 
 double PID_roll_Kp=300, PID_roll_Ki=20, PID_roll_Kd=10;
 double PID_pitch_Kp=300, PID_pitch_Ki=20, PID_pitch_Kd=10;
-double PID_yaw_Kp=300, PID_yaw_Ki=20, PID_yaw_Kd=10;
+double PID_yaw_Kp=150, PID_yaw_Ki=10, PID_yaw_Kd=5;
 //double PID_roll_Kp=600, PID_roll_Ki=0, PID_roll_Kd=0;
 //double PID_pitch_Kp=600, PID_pitch_Ki=0, PID_pitch_Kd=0;
 //double PID_yaw_Kp=600, PID_yaw_Ki=0, PID_yaw_Kd=0;
