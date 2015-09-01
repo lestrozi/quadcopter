@@ -46,11 +46,8 @@ void initMpu() {
 
   if (devStatus == 0) {
     mpu.setDMPEnabled(true);
-    attachInterrupt(0, dmpDataReady, RISING);
-    mpuIntStatus = mpu.getIntStatus();
-    D(Serial.println(F("DMP ready! Waiting for first interrupt..."));)
-    dmpReady = true;
     packetSize = mpu.dmpGetFIFOPacketSize();
+    D(Serial.println("OK");)
   } else {
     D(Serial.print(F("DMP Initialization failed (code "));)
     D(Serial.print(devStatus);)
@@ -59,30 +56,21 @@ void initMpu() {
 }
 
 void readMpu() {
-  // reset interrupt flag and get INT_STATUS byte
-  mpuInterrupt = false;
-  mpuIntStatus = mpu.getIntStatus();
-  
-  // get current FIFO count
-  fifoCount = mpu.getFIFOCount();
-  if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-    // reset so we can continue cleanly
-    mpu.resetFIFO();
-    Serial.println(F("FIFO overflow!"));
-    // otherwise, check for DMP data ready interrupt (this should happen frequently)
-  } else if (mpuIntStatus & 0x02) {
-    // wait for correct available data length, should be a VERY short wait
-    while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-    // read a packet from FIFO
-    mpu.getFIFOBytes(fifoBuffer, packetSize);
-    // track FIFO count here in case there is > 1 packet available
-    // (this lets us immediately read more without waiting for an interrupt)
-    fifoCount -= packetSize;
+  fifoCount = 0;
+  mpu.resetFIFO();
 
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
+  // wait for correct available data length, should be a VERY short wait
+  while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+  // read a packet from FIFO
+  mpu.getFIFOBytes(fifoBuffer, packetSize);
+
+  // track FIFO count here in case there is > 1 packet available
+  // (this lets us immediately read more without waiting for an interrupt)
+  fifoCount -= packetSize;
+
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
 //    mpu.dmpGetEuler(ypr, &q);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-  }
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 }
 

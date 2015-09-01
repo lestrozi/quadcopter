@@ -9,12 +9,12 @@
 //#define ARM_MOTORS
 
 #define DEBUG
-//#define DEBUG_DONT_INIT_IMU
-//#define SAFETY_START
-//#define CONSTANT_CALIBRATING
-#define WAIT_RADIO
+////#define DEBUG_DONT_INIT_IMU
+////#define SAFETY_START
+////#define CONSTANT_CALIBRATING
+//#define WAIT_RADIO
 #define WAIT_STABLE_YAW
-//#define DEBUG_NO_YAW_CONTROL
+#define DEBUG_NO_YAW_CONTROL
 
 
 #ifdef DEBUG
@@ -23,6 +23,8 @@
 #define D(X)
 #endif
 
+
+#define RUNLOOPEACH_MS 20
 
 // pins
 #define INT 2    // sendo usado por interrupcao do IMU
@@ -235,7 +237,9 @@ void suicide() {
 
 int yawCount = 0;
 void loop() {
-  if (millis() > 45000)
+  long timeRun = millis();
+  
+  if (timeRun > 45000)
     suicide();
 
   if (!pidStarted) {
@@ -250,11 +254,6 @@ void loop() {
     initMpu();
     mpuCalled = true;
     return;
-  }
-
-  if (!dmpReady) return;
-
-  while (!mpuInterrupt && fifoCount < packetSize) {
   }
   #endif
 
@@ -327,9 +326,8 @@ void loop() {
   for(int i=0; i<4; i++)
     setSpeed(escs[i], escs_speed[i]);
 
-  //D(printESCs();)
+  D(printESCs();)
 
-  //removed delay because IMU overflows
-//  delay(5);
+  delay(max(0, RUNLOOPEACH_MS - (millis() - timeRun)));
 }
 
